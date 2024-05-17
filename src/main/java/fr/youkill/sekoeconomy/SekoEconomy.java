@@ -2,6 +2,7 @@ package fr.youkill.sekoeconomy;
 
 import net.milkbowl.vault.economy.Economy;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -10,7 +11,7 @@ public final class SekoEconomy extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        if (!setupEconomy() ) {
+        if (!setupVault() || !setupPlaceholder()) {
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
@@ -21,7 +22,7 @@ public final class SekoEconomy extends JavaPlugin {
     public void onDisable() {
     }
 
-    private boolean setupEconomy() {
+    private boolean setupVault() {
         if (getServer().getPluginManager().getPlugin("Vault") == null) {
             getLogger().severe("Vault plugin not found !");
             return false;
@@ -32,6 +33,14 @@ public final class SekoEconomy extends JavaPlugin {
             return false;
         }
         economy = rsp.getProvider();
+        return true;
+    }
+
+    private boolean setupPlaceholder() {
+        if (getServer().getPluginManager().getPlugin("PlaceholderAPI") == null) {
+            getLogger().severe("PlaceholderAPI not found !");
+            return false;
+        }
         return true;
     }
 
