@@ -1,0 +1,5 @@
+test_server/
+target/
+.idea/
+.terraform*
+*tfstate*

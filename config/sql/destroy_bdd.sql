@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS transaction;
+DROP TABLE IF EXISTS player_team;
+DROP TABLE IF EXISTS team;
+DROP TABLE IF EXISTS player;
