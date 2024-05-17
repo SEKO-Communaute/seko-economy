@@ -1,0 +1,4 @@
+name: seko-economy
+version: '${project.version}'
+main: fr.youkill.sekoeconomy.Untitled
+api-version: '1.20'
