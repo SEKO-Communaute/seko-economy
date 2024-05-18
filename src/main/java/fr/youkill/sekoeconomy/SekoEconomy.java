@@ -15,25 +15,11 @@ public final class SekoEconomy extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        if (!setupVault() || !setupPlaceholder() || !setupDatabase() ) {
+        if (!setupVault() || !setupPlaceholder() || !setupDatabase()) {
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
-        getLogger().info("Plugin loaded");
-
-        try {
-            getLogger().info(database.launchRequest(new RequestGetTables()));
-            IDatabaseRequest<String> test = new RequestGetTables();
-            database.launchAsyncRequest(test, set -> {
-                try {
-                    System.out.println(test.convertResult(set));
-                } catch (DatabaseException e) {
-                    System.out.println("Error while exec request");
-                }
-            });
-        } catch (DatabaseException e) {
-            getLogger().severe(e.getMessage());
-        }
+        getLogger().info("All dependencies loaded !");
     }
 
     @Override
