@@ -1,9 +1,8 @@
 package fr.youkill.sekoeconomy.teams;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.Default;
-import co.aikar.commands.annotation.Subcommand;
+import co.aikar.commands.PaperCommandManager;
+import co.aikar.commands.annotation.*;
 import fr.youkill.sekoeconomy.database.DatabaseException;
 import fr.youkill.sekoeconomy.database.DatabaseManager;
 import fr.youkill.sekoeconomy.teams.request.*;
@@ -18,15 +17,39 @@ import java.util.logging.Logger;
 @CommandAlias("seko-team")
 public class TeamsManager extends BaseCommand  implements Listener {
     ArrayList<Team> teams;
-    Logger logger;
+    private final Logger logger;
     private final DatabaseManager database;
+    private final PaperCommandManager commandManager;
 
-    public TeamsManager(DatabaseManager databaseManager, Logger logger) throws DatabaseException {
+    public TeamsManager(DatabaseManager databaseManager, Logger logger, PaperCommandManager commandManager) throws DatabaseException {
+        this.commandManager = commandManager;
         this.database = databaseManager;
         this.logger = logger;
 
         this.updateTeams();
         this.displayCreatedTeams();
+
+        commandManager.getCommandCompletions().registerAsyncCompletion("bddplayers", c -> {
+            try {
+                ArrayList<String> end = new ArrayList<String>();
+                for (fr.youkill.sekoeconomy.teams.Player p : database.launchRequest(new GetPlayers()))
+                    end.add(p.name);
+                return end;
+            } catch (DatabaseException e) {
+                return new ArrayList<>();
+            }
+        });
+
+        commandManager.getCommandCompletions().registerAsyncCompletion("bddteams", c -> {
+            try {
+                ArrayList<String> end = new ArrayList<String>();
+                for (Team t : database.launchRequest(new GetTeams()))
+                    end.add(t.name);
+                return end;
+            } catch (DatabaseException e) {
+                return new ArrayList<>();
+            }
+        });
     }
 
     @Default
@@ -54,6 +77,7 @@ public class TeamsManager extends BaseCommand  implements Listener {
     }
 
     @Subcommand("create")
+    @Syntax("[team-name]")
     public void onCreateTeam(Player player, String name) {
         try {
             this.database.launchRequest(new CreateTeam(name));
@@ -65,6 +89,8 @@ public class TeamsManager extends BaseCommand  implements Listener {
     }
 
     @Subcommand("delete")
+    @Syntax("[team-name]")
+    @CommandCompletion("@bddteams")
     public void onDeleteTeam(Player player, String team_name) {
         try {
             this.database.launchRequest(new EmptyTeam(team_name));
@@ -77,6 +103,8 @@ public class TeamsManager extends BaseCommand  implements Listener {
     }
 
     @Subcommand("add-player")
+    @CommandCompletion("@bddteams @bddplayers")
+    @Syntax("[team-name] [player-name]")
     public void onAddPlayer(Player player, String team_name, String player_name) {
         try {
             fr.youkill.sekoeconomy.teams.Player p = getPlayerByName(player_name);
@@ -89,6 +117,8 @@ public class TeamsManager extends BaseCommand  implements Listener {
     }
 
     @Subcommand("remove-player")
+    @Syntax("[team-name] [player-name]")
+    @CommandCompletion("@bddteams @bddplayers")
     public void onRemovePlayer(Player player, String team_name, String player_name) {
         try {
             fr.youkill.sekoeconomy.teams.Player p = getPlayerByName(player_name);
