@@ -1,21 +1,23 @@
 package fr.youkill.sekoeconomy;
 
+import co.aikar.commands.PaperCommandManager;
 import fr.youkill.sekoeconomy.database.DatabaseException;
 import fr.youkill.sekoeconomy.database.DatabaseManager;
-import fr.youkill.sekoeconomy.database.requests.IDatabaseRequest;
-import fr.youkill.sekoeconomy.database.requests.RequestGetTables;
+import fr.youkill.sekoeconomy.teams.TeamsManager;
 import net.milkbowl.vault.economy.Economy;
 
+import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class SekoEconomy extends JavaPlugin {
     private static Economy economy = null;
     private static DatabaseManager database;
+    private static TeamsManager teamsManager;
 
     @Override
     public void onEnable() {
-        if (!setupVault() || !setupPlaceholder() || !setupDatabase()) {
+        if (!setupVault() || !setupPlaceholder() || !setupDatabase() || !setupTeams()) {
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
@@ -51,6 +53,18 @@ public final class SekoEconomy extends JavaPlugin {
     private boolean setupDatabase() {
         try {
             database = new DatabaseManager();
+            return true;
+        } catch (DatabaseException e) {
+            getLogger().severe(e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean setupTeams() {
+        PaperCommandManager commandManager = new PaperCommandManager(this);
+        try {
+            teamsManager = new TeamsManager(database, getLogger());
+            commandManager.registerCommand(teamsManager);
             return true;
         } catch (DatabaseException e) {
             getLogger().severe(e.getMessage());
