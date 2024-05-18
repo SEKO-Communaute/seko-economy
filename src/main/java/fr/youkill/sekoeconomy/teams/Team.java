@@ -4,12 +4,10 @@ import java.util.ArrayList;
 
 public class Team {
     public final String name;
-    public final int id;
     private final ArrayList<Player> playerList = new ArrayList<>();
 
-    public Team(String name, int id) {
+    public Team(String name) {
         this.name = name;
-        this.id = id;
     }
 
     public void pushPlayer(Player player) {
@@ -28,7 +26,6 @@ public class Team {
     public String toString() {
         return "Team{" +
                 "name='" + name + '\'' +
-                ", id=" + id +
                 ", playerList=" + playerList +
                 '}';
     }

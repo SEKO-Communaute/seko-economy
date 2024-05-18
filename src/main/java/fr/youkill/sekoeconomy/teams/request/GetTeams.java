@@ -19,12 +19,12 @@ public class GetTeams extends ADatabaseRequest<ArrayList<Team>> {
 
     @Override
     public @NotNull String getSQL() {
-        return "SELECT team.name AS team_name, team.id as team_id,\n" +
+        return "SELECT team.name AS team_name,\n" +
                 "       GROUP_CONCAT(CONCAT(player.name, ':', player.id) SEPARATOR ',') AS players\n" +
                 "FROM team\n" +
-                "         LEFT JOIN player_team ON team.id = player_team.id_team\n" +
+                "         LEFT JOIN player_team ON team.name = player_team.id_team\n" +
                 "         LEFT JOIN player ON player_team.id_player = player.id\n" +
-                "GROUP BY team.name, team.id";
+                "GROUP BY team.name";
     }
 
     @Override
@@ -34,9 +34,8 @@ public class GetTeams extends ADatabaseRequest<ArrayList<Team>> {
             while (set.next()) {
                 String team_name = set.getString("team_name");
                 String players = set.getString("players");
-                int team_id = set.getInt("team_id");
 
-                Team current = new Team(team_name, team_id);
+                Team current = new Team(team_name);
                 end.add(current);
                 if (players == null || players.isEmpty())
                     continue;

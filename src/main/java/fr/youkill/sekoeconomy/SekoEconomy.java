@@ -7,6 +7,7 @@ import fr.youkill.sekoeconomy.teams.TeamsManager;
 import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.command.CommandSender;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -65,6 +66,7 @@ public final class SekoEconomy extends JavaPlugin {
         try {
             teamsManager = new TeamsManager(database, getLogger());
             commandManager.registerCommand(teamsManager);
+            getServer().getPluginManager().registerEvents(teamsManager, this);
             return true;
         } catch (DatabaseException e) {
             getLogger().severe(e.getMessage());
