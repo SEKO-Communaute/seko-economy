@@ -84,6 +84,7 @@ public final class SekoEconomy extends JavaPlugin {
     public boolean setupEconomy() {
         this.economyTracking = new EconomyTracking(this);
         commandManager.registerCommand(economyTracking);
+        getServer().getPluginManager().registerEvents(economyTracking, this);
         return true;
     }
 }
