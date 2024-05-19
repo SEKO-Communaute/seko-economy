@@ -1,14 +1,15 @@
-package fr.youkill.sekoeconomy.teams;
+package fr.youkill.sekoeconomy.teams.placeholders;
 
 import fr.youkill.sekoeconomy.SekoEconomy;
+import fr.youkill.sekoeconomy.teams.Team;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class TeamsMoneyPlaceholder extends PlaceholderExpansion {
+public class TeamsMoney extends PlaceholderExpansion {
     private final SekoEconomy plugin;
-    public TeamsMoneyPlaceholder(SekoEconomy plugin) {
+    public TeamsMoney(SekoEconomy plugin) {
         this.plugin = plugin;
     }
 
