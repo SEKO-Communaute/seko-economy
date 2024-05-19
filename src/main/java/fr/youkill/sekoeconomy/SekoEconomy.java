@@ -1,26 +1,20 @@
 package fr.youkill.sekoeconomy;
 
 import co.aikar.commands.PaperCommandManager;
-import com.google.common.collect.ImmutableList;
 import fr.youkill.sekoeconomy.database.DatabaseException;
 import fr.youkill.sekoeconomy.database.DatabaseManager;
-import fr.youkill.sekoeconomy.teams.Player;
 import fr.youkill.sekoeconomy.teams.TeamsManager;
-import fr.youkill.sekoeconomy.teams.request.GetPlayers;
+import fr.youkill.sekoeconomy.teams.TeamsMoneyPlaceholder;
 import net.milkbowl.vault.economy.Economy;
 
-import org.bukkit.command.CommandSender;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import javax.annotation.concurrent.Immutable;
-import java.util.ArrayList;
-
 public final class SekoEconomy extends JavaPlugin {
-    private static Economy economy = null;
-    private static DatabaseManager database;
-    private static TeamsManager teamsManager;
+    public Economy economy;
+    public DatabaseManager database;
+    public TeamsManager teamsManager;
+    public PaperCommandManager commandManager;
 
     @Override
     public void onEnable() {
@@ -68,10 +62,10 @@ public final class SekoEconomy extends JavaPlugin {
     }
 
     public boolean setupTeams() {
-        PaperCommandManager commandManager = new PaperCommandManager(this);
-
+        commandManager = new PaperCommandManager(this);
         try {
-            teamsManager = new TeamsManager(database, getLogger(), commandManager);
+            teamsManager = new TeamsManager(this);
+            new TeamsMoneyPlaceholder(this).register();
             commandManager.registerCommand(teamsManager);
             getServer().getPluginManager().registerEvents(teamsManager, this);
             return true;
@@ -79,9 +73,5 @@ public final class SekoEconomy extends JavaPlugin {
             getLogger().severe(e.getMessage());
             return false;
         }
-    }
-
-    public static Economy getEconomy() {
-        return economy;
     }
 }

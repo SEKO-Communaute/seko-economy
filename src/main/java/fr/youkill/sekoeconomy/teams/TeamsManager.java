@@ -1,38 +1,32 @@
 package fr.youkill.sekoeconomy.teams;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.PaperCommandManager;
 import co.aikar.commands.annotation.*;
+import fr.youkill.sekoeconomy.SekoEconomy;
 import fr.youkill.sekoeconomy.database.DatabaseException;
-import fr.youkill.sekoeconomy.database.DatabaseManager;
 import fr.youkill.sekoeconomy.teams.request.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
-@CommandAlias("seko-team")
+@CommandAlias("seko-team|steam")
 public class TeamsManager extends BaseCommand  implements Listener {
     ArrayList<Team> teams;
-    private final Logger logger;
-    private final DatabaseManager database;
-    private final PaperCommandManager commandManager;
+    private final SekoEconomy plugin;
 
-    public TeamsManager(DatabaseManager databaseManager, Logger logger, PaperCommandManager commandManager) throws DatabaseException {
-        this.commandManager = commandManager;
-        this.database = databaseManager;
-        this.logger = logger;
-
+    public TeamsManager(SekoEconomy plugin) throws DatabaseException {
+        this.plugin = plugin;
         this.updateTeams();
         this.displayCreatedTeams();
 
-        commandManager.getCommandCompletions().registerAsyncCompletion("bddplayers", c -> {
+        plugin.commandManager.getCommandCompletions().registerAsyncCompletion("bddplayers", c -> {
             try {
                 ArrayList<String> end = new ArrayList<String>();
-                for (fr.youkill.sekoeconomy.teams.Player p : database.launchRequest(new GetPlayers()))
+                for (fr.youkill.sekoeconomy.teams.Player p : plugin.database.launchRequest(new GetPlayers(this.plugin)))
                     end.add(p.name);
                 return end;
             } catch (DatabaseException e) {
@@ -40,10 +34,10 @@ public class TeamsManager extends BaseCommand  implements Listener {
             }
         });
 
-        commandManager.getCommandCompletions().registerAsyncCompletion("bddteams", c -> {
+        plugin.commandManager.getCommandCompletions().registerAsyncCompletion("bddteams", c -> {
             try {
                 ArrayList<String> end = new ArrayList<String>();
-                for (Team t : database.launchRequest(new GetTeams()))
+                for (Team t : plugin.database.launchRequest(new GetTeams(this.plugin)))
                     end.add(t.name);
                 return end;
             } catch (DatabaseException e) {
@@ -66,7 +60,7 @@ public class TeamsManager extends BaseCommand  implements Listener {
     @Subcommand("players")
     public void onListPlayers(Player player) {
         try {
-            ArrayList<fr.youkill.sekoeconomy.teams.Player> players = database.launchRequest(new GetPlayers());
+            ArrayList<fr.youkill.sekoeconomy.teams.Player> players = plugin.database.launchRequest(new GetPlayers(this.plugin));
             player.sendMessage("Players :");
             for  (fr.youkill.sekoeconomy.teams.Player p : players) {
                 player.sendMessage("§2" + p.name + "§f");
@@ -80,7 +74,7 @@ public class TeamsManager extends BaseCommand  implements Listener {
     @Syntax("[team-name]")
     public void onCreateTeam(Player player, String name) {
         try {
-            this.database.launchRequest(new CreateTeam(name));
+            plugin.database.launchRequest(new CreateTeam(name));
             this.updateTeams();
             player.sendMessage("Team §2" + name + "§f created");
         } catch (DatabaseException e) {
@@ -93,8 +87,8 @@ public class TeamsManager extends BaseCommand  implements Listener {
     @CommandCompletion("@bddteams")
     public void onDeleteTeam(Player player, String team_name) {
         try {
-            this.database.launchRequest(new EmptyTeam(team_name));
-            this.database.launchRequest(new DeleteTeam(team_name));
+            plugin.database.launchRequest(new EmptyTeam(team_name));
+            plugin.database.launchRequest(new DeleteTeam(team_name));
             this.updateTeams();
             player.sendMessage("Team destroyed !");
         } catch (DatabaseException e) {
@@ -108,7 +102,7 @@ public class TeamsManager extends BaseCommand  implements Listener {
     public void onAddPlayer(Player player, String team_name, String player_name) {
         try {
             fr.youkill.sekoeconomy.teams.Player p = getPlayerByName(player_name);
-            database.launchRequest(new AddPlayerToTeam(p.uuid, team_name));
+            plugin.database.launchRequest(new AddPlayerToTeam(p.uuid, team_name));
             this.updateTeams();
             player.sendMessage("Player added to the team !");
         } catch (DatabaseException e) {
@@ -122,7 +116,7 @@ public class TeamsManager extends BaseCommand  implements Listener {
     public void onRemovePlayer(Player player, String team_name, String player_name) {
         try {
             fr.youkill.sekoeconomy.teams.Player p = getPlayerByName(player_name);
-            database.launchRequest(new RemovePlayerToTeam(p.uuid, team_name));
+            plugin.database.launchRequest(new RemovePlayerToTeam(p.uuid, team_name));
             this.updateTeams();
             player.sendMessage("Player removed of the team !");
         } catch (DatabaseException e) {
@@ -133,32 +127,40 @@ public class TeamsManager extends BaseCommand  implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         try {
-            boolean exist = database.launchRequest(new PlayerExist(event.getPlayer().getUniqueId().toString()));
+            boolean exist = plugin.database.launchRequest(new PlayerExist(event.getPlayer().getUniqueId().toString()));
             if (!exist) {
-                database.launchRequest(new CreatePlayer(event.getPlayer().getUniqueId().toString(), event.getPlayer().getName()));
-                this.logger.info("New player found, added to bdd -> " + event.getPlayer().getName());
+                plugin.database.launchRequest(new CreatePlayer(event.getPlayer().getUniqueId().toString(), event.getPlayer().getName()));
+                plugin.getLogger().info("New player found, added to bdd -> " + event.getPlayer().getName());
             }
         } catch (DatabaseException e) {
-            this.logger.severe("Can't check if player is new -> " + e.getMessage());
+            plugin.getLogger().severe("Can't check if player is new -> " + e.getMessage());
         }
     }
 
     private void updateTeams() throws DatabaseException {
-        this.teams = this.database.launchRequest(new GetTeams());
+        this.teams = plugin.database.launchRequest(new GetTeams(this.plugin));
     }
 
     private void displayCreatedTeams() {
         for (Team team : this.teams) {
-            logger.info("Team " + team.name + " created with players " + team.getPlayerList().toString());
+            plugin.getLogger().info("Team " + team.name + " created with players " + team.getPlayerList().toString());
         }
     }
 
     private fr.youkill.sekoeconomy.teams.Player getPlayerByName(String name) throws DatabaseException {
-        ArrayList<fr.youkill.sekoeconomy.teams.Player> players = database.launchRequest(new GetPlayers());
+        ArrayList<fr.youkill.sekoeconomy.teams.Player> players = plugin.database.launchRequest(new GetPlayers(this.plugin));
         for (fr.youkill.sekoeconomy.teams.Player p : players) {
             if (p.name.equals(name))
                 return p;
         }
         throw new DatabaseException("Can't find player " + name);
+    }
+
+    public Team getTeamByName(@NotNull String name) {
+        for (Team team : this.teams) {
+            if (team.name.equals(name))
+                return team;
+        }
+        return null;
     }
 }

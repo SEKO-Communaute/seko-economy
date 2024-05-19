@@ -1,5 +1,6 @@
 package fr.youkill.sekoeconomy.teams.request;
 
+import fr.youkill.sekoeconomy.SekoEconomy;
 import fr.youkill.sekoeconomy.database.DatabaseException;
 import fr.youkill.sekoeconomy.database.requests.ADatabaseRequest;
 import fr.youkill.sekoeconomy.teams.Player;
@@ -10,6 +11,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class GetPlayers extends ADatabaseRequest<ArrayList<Player>> {
+    private SekoEconomy plugin;
+    public GetPlayers(SekoEconomy plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
     public RequestType getType() {
         return RequestType.QUERY;
@@ -27,7 +33,7 @@ public class GetPlayers extends ADatabaseRequest<ArrayList<Player>> {
             while (set.next()) {
                 String playerName = set.getString("name");
                 String playerUUID = set.getString("id");
-                players.add(new Player(playerName, playerUUID));
+                players.add(new Player(this.plugin, playerName, playerUUID));
             }
             return players;
         } catch (SQLException e) {

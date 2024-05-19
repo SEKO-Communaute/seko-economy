@@ -1,12 +1,16 @@
 package fr.youkill.sekoeconomy.teams;
 
+import fr.youkill.sekoeconomy.SekoEconomy;
+
 import java.util.ArrayList;
 
 public class Team {
+    private SekoEconomy plugin;
     public final String name;
     private final ArrayList<Player> playerList = new ArrayList<>();
 
-    public Team(String name) {
+    public Team(SekoEconomy plugin, String name) {
+        this.plugin = plugin;
         this.name = name;
     }
 
@@ -20,6 +24,16 @@ public class Team {
 
     public ArrayList<Player> getPlayerList() {
         return this.playerList;
+    }
+
+    public double getIngameBalance() {
+        double endBalance = 0.0;
+        for (Player p : this.playerList) {
+            if (p.convertToBukkit() == null)
+                continue;
+            endBalance += this.plugin.economy.getBalance(p.convertToBukkit());
+        }
+        return endBalance;
     }
 
     @Override
