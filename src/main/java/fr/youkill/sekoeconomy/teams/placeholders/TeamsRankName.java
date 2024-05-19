@@ -9,9 +9,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
-public class TeamsRankMoney extends PlaceholderExpansion {
+public class TeamsRankName extends PlaceholderExpansion {
     private final SekoEconomy plugin;
-    public TeamsRankMoney(SekoEconomy plugin) {
+    public TeamsRankName(SekoEconomy plugin) {
         this.plugin = plugin;
     }
 
