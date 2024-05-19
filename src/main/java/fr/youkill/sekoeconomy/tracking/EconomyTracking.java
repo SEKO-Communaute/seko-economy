@@ -75,6 +75,29 @@ public class EconomyTracking extends BaseCommand implements Listener {
 
     }
 
+    @Subcommand("fixMoney")
+    @CommandCompletion("@bddplayers")
+    public void fixBalance(Player p, String player) {
+        try {
+            OfflinePlayer off_player = Bukkit.getOfflinePlayer(player);
+            Double money = this.plugin.database.launchRequest(
+                    new GetPlayerMoneyTransaction(off_player.getUniqueId().toString())
+            );
+            fr.youkill.sekoeconomy.teams.Player my_player = new fr.youkill.sekoeconomy.teams.Player(
+                    this.plugin, off_player.getName(), off_player.getUniqueId().toString()
+            );
+            if (my_player.getBalance().equals(money)) {
+                p.sendMessage("No balance problem detected");
+            } else {
+                this.plugin.database.launchRequest(new CreateTransaction(off_player.getUniqueId().toString(), my_player.getBalance() - money));
+                p.sendMessage("Money fixed !");
+            }
+
+        } catch (DatabaseException e) {
+            p.sendMessage("Can't fix money -> " + e.getMessage());
+        }
+    }
+
     @EventHandler
     private void listenPlayerAccount(PlayerAccountEvent event) {
         if (!this.isEnabled)
