@@ -29,9 +29,7 @@ public class Team {
     public double getIngameBalance() {
         double endBalance = 0.0;
         for (Player p : this.playerList) {
-            if (p.convertToBukkit() == null)
-                continue;
-            endBalance += this.plugin.economy.getBalance(p.convertToBukkit());
+            endBalance += p.getBalance();
         }
         return endBalance;
     }

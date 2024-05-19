@@ -15,14 +15,19 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.scheduler.BukkitRunnable;
 
 @CommandAlias("seko-track|strack")
 public class EconomyTracking extends BaseCommand implements Listener {
     private final SekoEconomy plugin;
     private boolean isEnabled = true;
+    private final MoneyCorrector moneyCorrector;
 
     public EconomyTracking(SekoEconomy plugin) {
         this.plugin = plugin;
+
+        this.moneyCorrector = new MoneyCorrector(plugin);
+        this.moneyCorrector.runTaskTimerAsynchronously(this.plugin, 0L, 5L * 60L * 20L); // Every 5 minutes
     }
 
     @Default
@@ -48,6 +53,12 @@ public class EconomyTracking extends BaseCommand implements Listener {
             default:
                 p.sendMessage("§eFrerot, ta deux choix possible tu force§f");
         }
+    }
+
+    @Subcommand("find-error")
+    public void findError(Player p) {
+        p.sendMessage("Result of this command is displayed in the console");
+        this.moneyCorrector.run();
     }
 
     @Subcommand("money")

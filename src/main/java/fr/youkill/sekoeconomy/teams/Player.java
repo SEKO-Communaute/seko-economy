@@ -26,4 +26,11 @@ public class Player {
     public OfflinePlayer convertToBukkit() {
         return this.plugin.getServer().getOfflinePlayer(this.name);
     }
+
+    public Double getBalance() {
+        OfflinePlayer p = this.convertToBukkit();
+        if (p == null)
+            return 0.0;
+        return this.plugin.economy.getBalance(p);
+    }
 }
