@@ -12,9 +12,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 
 @CommandAlias("seko-team|steam")
 public class TeamsManager extends BaseCommand  implements Listener {

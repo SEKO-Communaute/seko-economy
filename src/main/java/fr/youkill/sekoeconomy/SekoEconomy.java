@@ -7,6 +7,7 @@ import fr.youkill.sekoeconomy.teams.TeamsManager;
 import fr.youkill.sekoeconomy.teams.placeholders.TeamsMoney;
 import fr.youkill.sekoeconomy.teams.placeholders.TeamsRankMoney;
 import fr.youkill.sekoeconomy.teams.placeholders.TeamsRankName;
+import fr.youkill.sekoeconomy.tracking.EconomyTracking;
 import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -16,11 +17,13 @@ public final class SekoEconomy extends JavaPlugin {
     public Economy economy;
     public DatabaseManager database;
     public TeamsManager teamsManager;
+    public EconomyTracking economyTracking;
     public PaperCommandManager commandManager;
 
     @Override
     public void onEnable() {
-        if (!setupVault() || !setupPlaceholder() || !setupDatabase() || !setupTeams()) {
+        commandManager = new PaperCommandManager(this);
+        if (!setupVault() || !setupPlaceholder() || !setupDatabase() || !setupTeams() || !setupEconomy()) {
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
@@ -64,7 +67,6 @@ public final class SekoEconomy extends JavaPlugin {
     }
 
     public boolean setupTeams() {
-        commandManager = new PaperCommandManager(this);
         try {
             teamsManager = new TeamsManager(this);
             new TeamsMoney(this).register();
@@ -77,5 +79,11 @@ public final class SekoEconomy extends JavaPlugin {
             getLogger().severe(e.getMessage());
             return false;
         }
+    }
+
+    public boolean setupEconomy() {
+        this.economyTracking = new EconomyTracking(this);
+        commandManager.registerCommand(economyTracking);
+        return true;
     }
 }
