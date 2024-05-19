@@ -12,6 +12,9 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 
 @CommandAlias("seko-team|steam")
 public class TeamsManager extends BaseCommand  implements Listener {
@@ -162,5 +165,13 @@ public class TeamsManager extends BaseCommand  implements Listener {
                 return team;
         }
         return null;
+    }
+
+    public ArrayList<Team> getSortedTeams() {
+        ArrayList<Team> sortedTeams = new ArrayList<>(teams);
+        sortedTeams.sort(
+            (t1, t2) -> Double.compare(t2.getIngameBalance(), t1.getIngameBalance())
+        );
+        return sortedTeams;
     }
 }

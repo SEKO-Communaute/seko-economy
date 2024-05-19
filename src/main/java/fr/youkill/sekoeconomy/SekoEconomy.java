@@ -5,6 +5,7 @@ import fr.youkill.sekoeconomy.database.DatabaseException;
 import fr.youkill.sekoeconomy.database.DatabaseManager;
 import fr.youkill.sekoeconomy.teams.TeamsManager;
 import fr.youkill.sekoeconomy.teams.placeholders.TeamsMoney;
+import fr.youkill.sekoeconomy.teams.placeholders.TeamsRankMoney;
 import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -66,6 +67,7 @@ public final class SekoEconomy extends JavaPlugin {
         try {
             teamsManager = new TeamsManager(this);
             new TeamsMoney(this).register();
+            new TeamsRankMoney(this).register();
             commandManager.registerCommand(teamsManager);
             getServer().getPluginManager().registerEvents(teamsManager, this);
             return true;
