@@ -10,6 +10,8 @@ import fr.youkill.sekoeconomy.database.DatabaseException;
 import fr.youkill.sekoeconomy.tracking.request.CreateTransaction;
 import fr.youkill.sekoeconomy.tracking.request.GetPlayerMoneyTransaction;
 import me.yic.xconomy.api.event.PlayerAccountEvent;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -46,6 +48,20 @@ public class EconomyTracking extends BaseCommand implements Listener {
             default:
                 p.sendMessage("§eFrerot, ta deux choix possible tu force§f");
         }
+    }
+
+    @Subcommand("money")
+    @CommandCompletion("@bddplayers")
+    public void checkPlayerMoney(Player p, String player) {
+        try {
+            Double money = this.plugin.database.launchRequest(
+                                new GetPlayerMoneyTransaction(Bukkit.getOfflinePlayer(player).getUniqueId().toString())
+                            );
+            p.sendMessage(player + " Have " + money);
+        } catch (DatabaseException e) {
+            p.sendMessage("Can't get money -> " + e.getMessage());
+        }
+
     }
 
     @EventHandler
