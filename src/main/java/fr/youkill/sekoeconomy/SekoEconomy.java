@@ -3,6 +3,7 @@ package fr.youkill.sekoeconomy;
 import co.aikar.commands.PaperCommandManager;
 import fr.youkill.sekoeconomy.database.DatabaseException;
 import fr.youkill.sekoeconomy.database.DatabaseManager;
+import fr.youkill.sekoeconomy.printer.CrazyPrinter;
 import fr.youkill.sekoeconomy.teams.TeamsManager;
 import fr.youkill.sekoeconomy.teams.placeholders.TeamsMoney;
 import fr.youkill.sekoeconomy.teams.placeholders.TeamsRankMoney;
@@ -10,10 +11,12 @@ import fr.youkill.sekoeconomy.teams.placeholders.TeamsRankName;
 import fr.youkill.sekoeconomy.tracking.EconomyTracking;
 import net.milkbowl.vault.economy.Economy;
 
+import org.bukkit.ChatColor;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class SekoEconomy extends JavaPlugin {
+    public CrazyPrinter printer = new CrazyPrinter(this);
     public Economy economy;
     public DatabaseManager database;
     public TeamsManager teamsManager;
@@ -22,6 +25,7 @@ public final class SekoEconomy extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        printer.printInConsole();
         this.saveDefaultConfig();
         commandManager = new PaperCommandManager(this);
         if (!setupVault() || !setupPlaceholder() || !setupDatabase() || !setupTeams() || !setupEconomy()) {
