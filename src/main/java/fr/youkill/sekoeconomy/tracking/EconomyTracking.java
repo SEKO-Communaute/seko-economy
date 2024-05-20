@@ -9,6 +9,7 @@ import fr.youkill.sekoeconomy.SekoEconomy;
 import fr.youkill.sekoeconomy.database.DatabaseException;
 import fr.youkill.sekoeconomy.tracking.request.CreateTransaction;
 import fr.youkill.sekoeconomy.tracking.request.GetPlayerMoneyTransaction;
+import fr.youkill.sekoeconomy.tracking.request.ResetTransactions;
 import me.yic.xconomy.api.event.PlayerAccountEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -16,6 +17,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Random;
 
 @CommandAlias("seko-track|strack")
 public class EconomyTracking extends BaseCommand implements Listener {
@@ -27,7 +36,7 @@ public class EconomyTracking extends BaseCommand implements Listener {
         this.plugin = plugin;
 
         this.moneyCorrector = new MoneyCorrector(plugin);
-        this.moneyCorrector.runTaskTimerAsynchronously(this.plugin, 0L, 5L * 60L * 20L); // Every 5 minutes
+        this.moneyCorrector.runTaskTimerAsynchronously(this.plugin, 0L, 10L * 60L * 20L); // Every 5 minutes
     }
 
     @Default
@@ -76,25 +85,45 @@ public class EconomyTracking extends BaseCommand implements Listener {
     }
 
     @Subcommand("fixMoney")
-    @CommandCompletion("@bddplayers")
+    @CommandCompletion("*|@bddplayers")
     public void fixBalance(Player p, String player) {
-        try {
-            OfflinePlayer off_player = Bukkit.getOfflinePlayer(player);
-            Double money = this.plugin.database.launchRequest(
-                    new GetPlayerMoneyTransaction(off_player.getUniqueId().toString())
+        ArrayList<OfflinePlayer> players = new ArrayList<OfflinePlayer>();
+        if (!player.equals("*")) {
+            players.add(Bukkit.getOfflinePlayer(player));
+        } else {
+            this.plugin.teamsManager.getSortedTeams().forEach(
+                    team -> team.getPlayerList().forEach(
+                            current -> players.add(Bukkit.getOfflinePlayer(current.name))
+                    )
             );
-            fr.youkill.sekoeconomy.teams.Player my_player = new fr.youkill.sekoeconomy.teams.Player(
-                    this.plugin, off_player.getName(), off_player.getUniqueId().toString()
-            );
-            if (my_player.getBalance().equals(money)) {
-                p.sendMessage("No balance problem detected");
-            } else {
-                this.plugin.database.launchRequest(new CreateTransaction(off_player.getUniqueId().toString(), my_player.getBalance() - money));
-                p.sendMessage("Money fixed !");
-            }
+        }
 
+        try {
+            for (OfflinePlayer off_player : players) {
+                Double money = this.plugin.database.launchRequest(
+                        new GetPlayerMoneyTransaction(off_player.getUniqueId().toString())
+                );
+                fr.youkill.sekoeconomy.teams.Player my_player = new fr.youkill.sekoeconomy.teams.Player(
+                        this.plugin, off_player.getName(), off_player.getUniqueId().toString()
+                );
+                if (my_player.getBalance().equals(money)) {
+                    p.sendMessage(off_player.getName() + " -> No balance problem detected");
+                } else {
+                    this.plugin.database.launchRequest(new CreateTransaction(off_player.getUniqueId().toString(), my_player.getBalance() - money));
+                    p.sendMessage(off_player.getName() + " -> Money fixed !");
+                }
+            }
         } catch (DatabaseException e) {
             p.sendMessage("Can't fix money -> " + e.getMessage());
+        }
+    }
+
+    @Subcommand("resetTransactions")
+    public void resetAll(Player p) {
+        try {
+            this.plugin.database.launchRequest(new ResetTransactions());
+        } catch (DatabaseException e) {
+            p.sendMessage("Can't reset transaction -> " + e.getMessage());
         }
     }
 
