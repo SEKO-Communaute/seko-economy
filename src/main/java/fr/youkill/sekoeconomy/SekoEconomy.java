@@ -22,6 +22,7 @@ public final class SekoEconomy extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        this.saveDefaultConfig();
         commandManager = new PaperCommandManager(this);
         if (!setupVault() || !setupPlaceholder() || !setupDatabase() || !setupTeams() || !setupEconomy()) {
             getServer().getPluginManager().disablePlugin(this);
@@ -58,7 +59,7 @@ public final class SekoEconomy extends JavaPlugin {
 
     private boolean setupDatabase() {
         try {
-            database = new DatabaseManager();
+            database = new DatabaseManager(this);
             return true;
         } catch (DatabaseException e) {
             getLogger().severe(e.getMessage());

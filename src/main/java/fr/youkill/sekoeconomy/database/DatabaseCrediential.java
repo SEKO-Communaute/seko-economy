@@ -1,5 +1,8 @@
 package fr.youkill.sekoeconomy.database;
 
+import fr.youkill.sekoeconomy.SekoEconomy;
+import org.bukkit.configuration.file.FileConfiguration;
+
 public class DatabaseCrediential {
     private String ip;
     private String user;
@@ -7,12 +10,14 @@ public class DatabaseCrediential {
     private String database;
     private String port;
 
-    DatabaseCrediential() {
-        ip = "sql3.minestrator.com";
-        port = "3306";
-        user = "minesr_bw2LdGg4";
-        password = "bNt4pqLQjjBlgMc2";
-        database = "minesr_bw2LdGg4";
+    DatabaseCrediential(SekoEconomy plugin) {
+        FileConfiguration config = plugin.getConfig();
+
+        ip = config.getString("database.ip");
+        port = String.valueOf(config.getInt("database.port"));
+        user = config.getString("database.user");
+        password = config.getString("database.password");
+        database = config.getString("database.database");
     }
 
     public String getIp() {

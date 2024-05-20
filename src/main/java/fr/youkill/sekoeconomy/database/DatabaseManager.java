@@ -1,5 +1,6 @@
 package fr.youkill.sekoeconomy.database;
 
+import fr.youkill.sekoeconomy.SekoEconomy;
 import fr.youkill.sekoeconomy.database.requests.IDatabaseRequest;
 
 import java.sql.*;
@@ -8,9 +9,10 @@ import java.util.function.Consumer;
 
 public class DatabaseManager {
     private Connection connection;
-    private final DatabaseCrediential crediential = new DatabaseCrediential();
+    private final DatabaseCrediential crediential;
 
-    public DatabaseManager() throws DatabaseException {
+    public DatabaseManager(SekoEconomy plugin) throws DatabaseException {
+        crediential = new DatabaseCrediential(plugin);
         try {
             connection = DriverManager.getConnection(
                 String.format("jdbc:mysql://%s:%s/%s", crediential.getIp(), crediential.getPort(), crediential.getDatabase()),
