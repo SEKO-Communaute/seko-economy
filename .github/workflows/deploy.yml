@@ -29,7 +29,7 @@ jobs:
         with:
           host: ${{ secrets.FTP_SERVER }}
           port: ${{ secrets.FTP_PORT }}
-          user: ${{ secrets.FTP_USER }}
+          user: ${{ secrets.FTP_USERNAME }}
           pass: ${{ secrets.FTP_PASSWORD }}
           onlyNewer: true
           settings: 'sftp:auto-confirm=yes'
