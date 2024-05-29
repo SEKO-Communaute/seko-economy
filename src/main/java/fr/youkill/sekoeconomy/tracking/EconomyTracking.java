@@ -7,6 +7,7 @@ import co.aikar.commands.annotation.Default;
 import co.aikar.commands.annotation.Subcommand;
 import fr.youkill.sekoeconomy.SekoEconomy;
 import fr.youkill.sekoeconomy.database.DatabaseException;
+import fr.youkill.sekoeconomy.teams.request.CreatePlayer;
 import fr.youkill.sekoeconomy.tracking.request.CreateTransaction;
 import fr.youkill.sekoeconomy.tracking.request.GetPlayerMoneyTransaction;
 import fr.youkill.sekoeconomy.tracking.request.ResetTransactions;
@@ -141,7 +142,15 @@ public class EconomyTracking extends BaseCommand implements Listener {
                 this.plugin.database.launchRequest(new CreateTransaction(event.getUniqueId().toString(), -event.getamount().doubleValue()));
             }
         } catch (DatabaseException e) {
+            OfflinePlayer player = this.plugin.getServer().getOfflinePlayer(event.getUniqueId());
             this.plugin.getLogger().severe("Can't create transaction -> " + e.getMessage());
+            this.plugin.getLogger().severe("Try to create the user");
+            try {
+                this.plugin.database.launchRequest(new CreatePlayer(player.getUniqueId().toString(), player.getName()));
+            } catch (DatabaseException ex) {
+                this.plugin.getLogger().severe("[CRITICAL !] Can't create the user !" + ex.getMessage());
+            }
+
         }
     }
 }
