@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.UUID;
 
 @CommandAlias("seko-track|strack")
 public class EconomyTracking extends BaseCommand implements Listener {
@@ -132,6 +133,8 @@ public class EconomyTracking extends BaseCommand implements Listener {
     private void listenPlayerAccount(PlayerAccountEvent event) {
         if (!this.isEnabled)
             return;
+        if (event.getUniqueId() == UUID.fromString("2c5f00ba-902c-411b-b9b9-9261cf43aee1"))
+            return; // Ignore tax account, I know it's hardcoded :(
         try {
             if (event.getisadd() == null) {
                 Double player_amount = this.plugin.database.launchRequest(new GetPlayerMoneyTransaction(event.getUniqueId().toString()));
