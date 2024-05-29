@@ -33,6 +33,6 @@ jobs:
           PORT: ${{ secrets.FTP_PORT }}
           USER: ${{ secrets.FTP_USERNAME }}
           PASS: ${{ secrets.FTP_PASSWORD }}
-        run: lftp -c "set sftp:auto-confirm yes; open -u $USER,$PASS -p $PORT $HOST; put target/seko-economy-1.0.jar -o /test_deploy/seko-economy-1.0.jar"
+        run: lftp -c "set sftp:auto-confirm yes; open -u $USER,$PASS -p $PORT $HOST; put target/seko-economy-1.0.jar -o /plugins/seko-economy-1.0.jar"
 
 
