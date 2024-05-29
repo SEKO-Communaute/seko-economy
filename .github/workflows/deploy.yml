@@ -1,0 +1,31 @@
+name: deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: setup JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+
+      - name: build
+        run: mvn clean package
+
+      - name: deploy
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_PORT: ${{ secrets.FTP_PASSWORD }}
+        run: lftp -c "open -u $FTP_USERNAME,$FTP_PASSWORD -p $FTP_PORT $FTP_SERVER; put target/seko-economy-1.0.jar -o /test_deploy/seko-economy-1.0.jar"
