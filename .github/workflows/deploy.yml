@@ -24,18 +24,15 @@ jobs:
       - name: build
         run: mvn clean package
 
+      - name: Install lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp
+
       - name: deploy
-        uses: pressidium/lftp-mirror-action@v1
-        with:
-          host: ${{ secrets.FTP_SERVER }}
-          port: ${{ secrets.FTP_PORT }}
-          user: ${{ secrets.FTP_USERNAME }}
-          pass: ${{ secrets.FTP_PASSWORD }}
-          onlyNewer: true
-          settings: 'sftp:auto-confirm=yes'
-          localDir: 'target/seko-economy-1.0.jar'
-          remoteDir: '/test_deploy/'
-          reverse: true
-          options: '--verbose'
+        env:
+          HOST: ${{ secrets.FTP_SERVER }}
+          PORT: ${{ secrets.FTP_PORT }}
+          USER: ${{ secrets.FTP_USERNAME }}
+          PASS: ${{ secrets.FTP_PASSWORD }}
+        run: lftp -c "set sftp:auto-confirm yes; open -u $USER,$PASS -p $PORT $HOST; put target/seko-economy-1.0.jar -o /test_deploy/seko-economy-1.0.jar"
 
 
