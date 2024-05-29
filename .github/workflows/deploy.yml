@@ -11,7 +11,9 @@ jobs:
 
     steps:
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: setup JDK
         uses: actions/setup-java@v4
@@ -23,9 +25,17 @@ jobs:
         run: mvn clean package
 
       - name: deploy
-        env:
-          FTP_SERVER: ${{ secrets.FTP_SERVER }}
-          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-          FTP_PORT: ${{ secrets.FTP_PASSWORD }}
-        run: lftp -c "open -u $FTP_USERNAME,$FTP_PASSWORD -p $FTP_PORT $FTP_SERVER; put target/seko-economy-1.0.jar -o /test_deploy/seko-economy-1.0.jar"
+        uses: pressidium/lftp-mirror-action@v1
+        with:
+          host: ${{ secrets.FTP_SERVER }}
+          port: ${{ secrets.FTP_PORT }}
+          user: ${{ secrets.FTP_USER }}
+          pass: ${{ secrets.FTP_PASSWORD }}
+          onlyNewer: true
+          settings: 'sftp:auto-confirm=yes'
+          localDir: 'target/seko-economy-1.0.jar'
+          remoteDir: '/test_deploy/'
+          reverse: true
+          options: '--verbose'
+
+
